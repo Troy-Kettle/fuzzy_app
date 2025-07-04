@@ -1,5 +1,5 @@
 import streamlit as st
-from fuzzy_core.type1_fuzzy_ui_sections import (
+from src.ui.type1_fuzzy_ui_sections import (
     render_upload_config_section,
     render_presets_section,
     render_variable_section,

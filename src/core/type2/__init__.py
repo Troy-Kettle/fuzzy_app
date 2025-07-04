@@ -1,0 +1,1 @@
+# Type-2 fuzzy logic implementation 

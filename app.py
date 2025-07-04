@@ -1,38 +1,115 @@
 import streamlit as st
 
-st.set_page_config(page_title="Fuzzy Inference System Home", layout="wide")
+# Configure the page
+st.set_page_config(
+    page_title="Fuzzy Logic Inference System",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Main content
+st.title("🧠 Fuzzy Logic Inference System")
+st.markdown("---")
+
+# Introduction
+st.markdown("""
+### Welcome to the Interactive Fuzzy Logic System
+
+Build, visualise, and experiment with both **Type-1** and **Interval Type-2 (IT2)** fuzzy logic systems. 
+Perfect for education, research, and rapid prototyping of fuzzy inference systems.
+""")
+
+# Two-column layout for features
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+    ### 🎯 Key Features
+    
+    - **Interactive System Builder**
+    - **Real-time Visualisation**
+    - **Export to Python Code**
+    - **Save/Load Configurations**
+    - **Type-1 & Type-2 Support**
+    - **Educational Examples**
+    """)
+
+with col2:
+    st.markdown("""
+    ### 🚀 Quick Start
+    
+    1. **Select a System Type** from the sidebar
+    2. **Define Variables** and fuzzy sets
+    3. **Create Rules** for inference
+    4. **Run Inference** and see results
+    5. **Export** your system
+    """)
+
+st.markdown("---")
+
+# System types explanation
+st.subheader("📚 Understanding Fuzzy Logic Systems")
+
+tab1, tab2, tab3 = st.tabs(["Type-1 Fuzzy", "Type-2 Fuzzy", "Applications"])
+
+with tab1:
+    st.markdown("""
+    **Type-1 Fuzzy Logic** is the classic approach where membership functions are crisp values between 0 and 1.
+    
+    **Advantages:**
+    - Simple to understand and implement
+    - Fast computation
+    - Widely used in control systems
+    
+    **Use Cases:**
+    - Temperature control systems
+    - Washing machine controllers
+    - Simple decision-making systems
+    """)
+
+with tab2:
+    st.markdown("""
+    **Interval Type-2 (IT2) Fuzzy Logic** extends Type-1 by introducing uncertainty in membership functions.
+    
+    **Advantages:**
+    - Handles uncertainty better
+    - More robust to noise
+    - Provides confidence intervals
+    
+    **Use Cases:**
+    - Noisy sensor data
+    - Medical diagnosis systems
+    - Financial forecasting
+    """)
+
+with tab3:
+    st.markdown("""
+    **Common Applications:**
+    
+    - **Control Systems:** Temperature, pressure, speed control
+    - **Decision Making:** Medical diagnosis, risk assessment
+    - **Pattern Recognition:** Image processing, speech recognition
+    - **Optimisation:** Resource allocation, scheduling
+    """)
+
+st.markdown("---")
+
+# Navigation section
+st.subheader("🎮 Get Started")
 
 st.markdown("""
-# Welcome to the Fuzzy Inference System App!
+Choose your fuzzy system type from the sidebar and start building:
 
-This app lets you build, visualize, and experiment with fuzzy logic systems interactively.
-
----
-
-## What is a Fuzzy Inference System?
-A fuzzy inference system (FIS) is a framework for reasoning with uncertain or imprecise information, using fuzzy logic. FISs are widely used in control systems, decision-making, and artificial intelligence.
-
-- **Define input and output variables and their fuzzy sets**
-- **Create and edit fuzzy rules**
-- **Visualize membership functions and inference results**
-- **Save and load your fuzzy system configurations**
-
----
-
-## How to Use This App
-1. Go to the sidebar and select a page (e.g., **Type 1 Fuzzy**) to start building your system.
-2. Use the provided tools to define variables, sets, and rules.
-3. Run inference and visualize the results.
-4. Save or load configurations as needed.
-
----
-
-## Get Started
-- [Type 1 Fuzzy System](./pages/type1_fuzzy.py)
-
-For more information, see the [Wikipedia article on Fuzzy Logic](https://en.wikipedia.org/wiki/Fuzzy_logic).
-
----
-
-*Created with ❤️ using Streamlit.*
+- **[Type-1 Fuzzy System](./pages/type1_fuzzy.py)** - Classic fuzzy logic with crisp membership functions
+- **[Type-2 Fuzzy System](./pages/type2_fuzzy.py)** - Advanced fuzzy logic with uncertainty handling
 """)
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: #666;'>
+    <p>Built with ❤️ using Streamlit and Python | UK English throughout</p>
+    <p>For more information, see the <a href='https://en.wikipedia.org/wiki/Fuzzy_logic' target='_blank'>Wikipedia article on Fuzzy Logic</a></p>
+</div>
+""", unsafe_allow_html=True)
