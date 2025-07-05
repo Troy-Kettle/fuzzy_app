@@ -45,7 +45,12 @@ def gaussian(x, mean, sigma):
         conds = []
         for v, s in rule['if']:
             conds.append(f'{v.replace(" ", "_").lower()}_mf["{s}"]')
-        rule_strength = f'min({", ".join(conds)})' if conds else '0'
+        if len(conds) == 1:
+            rule_strength = conds[0]
+        elif len(conds) > 1:
+            rule_strength = f'min({", ".join(conds)})'
+        else:
+            rule_strength = '0'
         out_var, out_set = rule['then']
         rule_outputs.append((rule_strength, out_var, out_set))
     out_vars = [v['name'] for v in fis_vars if v['role'] == 'Output']
@@ -144,6 +149,17 @@ def gaussian(x, mean, sigma):
             f'                break',
             f'            else:',
             f'                print(f"Error: Value must be between {var["range"][0]} and {var["range"][1]}")',
+            f'        except ValueError:',
+            f'            print("Error: Please enter a valid number")',
+            f'    while True:',
+            f'        try:',
+            f'            std = float(input(f"Enter standard deviation for {var["name"]} (suggested: 0.1): "))',
+            f'            if std >= 0:',
+            f'                if "input_stds" not in locals(): input_stds = {{}}',
+            f'                input_stds["{var["name"]}"] = std',
+            f'                break',
+            f'            else:',
+            f'                print("Error: Standard deviation must be non-negative")',
             f'        except ValueError:',
             f'            print("Error: Please enter a valid number")',
         ])

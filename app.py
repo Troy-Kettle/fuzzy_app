@@ -102,6 +102,7 @@ st.markdown("""
 Choose your fuzzy system type from the sidebar and start building:
 
 - **[Type-1 Fuzzy System](./pages/type1_fuzzy.py)** - Classic fuzzy logic with crisp membership functions
+- **[Non-Singleton Type-1 Fuzzy System](./pages/type1_non_singleton_fuzzy.py)** - Type-1 fuzzy logic with input uncertainty modelling
 - **[Type-2 Fuzzy System](./pages/type2_fuzzy.py)** - Advanced fuzzy logic with uncertainty handling
 """)
 
@@ -109,7 +110,6 @@ Choose your fuzzy system type from the sidebar and start building:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
-    <p>Built with ❤️ using Streamlit and Python | UK English throughout</p>
     <p>For more information, see the <a href='https://en.wikipedia.org/wiki/Fuzzy_logic' target='_blank'>Wikipedia article on Fuzzy Logic</a></p>
 </div>
 """, unsafe_allow_html=True)

@@ -1,3 +1,14 @@
+"""
+Type-1 Fuzzy Logic System User Interface Components
+
+This module provides Streamlit-based UI components for constructing and interacting with
+Type-1 Fuzzy Inference Systems (FIS). It supports variable definition, fuzzy set creation,
+rules management, inference execution, and export functionality.
+
+The interface is designed for clarity and ease of use, suitable for both educational and
+professional applications in fuzzy logic.
+"""
+
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,6 +20,21 @@ from src.export.fuzzy_export import generate_python_code
 import json
 
 def load_tipper():
+    """
+    Loads a pre-configured Type-1 Fuzzy Inference System for restaurant tipping.
+
+    This example demonstrates a classic fuzzy logic application where food quality
+    and service level determine the appropriate tip percentage. The system utilises
+    triangular membership functions to model linguistic variables.
+
+    Variables:
+        - Food Quality (Input): 0-10 scale
+        - Service (Input): 0-10 scale
+        - Tip (Output): 0-25% range
+
+    Returns:
+        None: Updates session state with FIS configuration
+    """
     st.session_state.fis_vars = [
         {
             "name": "Food Quality",
@@ -57,6 +83,22 @@ def load_tipper():
     st.rerun()
 
 def load_washing_machine():
+    """
+    Loads a pre-configured Type-1 Fuzzy Inference System for washing machine control.
+
+    This example demonstrates an industrial control application where dirtiness level
+    and load size determine the optimal wash cycle duration. The system employs
+    triangular membership functions to model uncertainty in sensor readings and
+    laundry load conditions.
+
+    Variables:
+        - Dirtiness (Input): 0-10 scale representing soil level
+        - Load Size (Input): 0-10 scale representing laundry quantity
+        - Wash Time (Output): 0-60 minutes cycle duration
+
+    Returns:
+        None: Updates session state with FIS configuration
+    """
     st.session_state.fis_vars = [
         {"name": "Dirtiness", "role": "Input", "range": [0, 10], "sets": [
             {"name": "low", "type": "Triangular", "params": "0, 0, 5"},
@@ -90,6 +132,20 @@ def load_washing_machine():
     st.rerun()
 
 def load_room_heater():
+    """
+    Loads a pre-configured Type-1 Fuzzy Inference System for room heating control.
+
+    This example demonstrates a climate control application where ambient temperature
+    determines heater power output. The system utilises triangular membership functions
+    to model environmental and sensor uncertainty.
+
+    Variables:
+        - Temperature (Input): 0-40°C ambient temperature
+        - Heater Power (Output): 0-100% power output
+
+    Returns:
+        None: Updates session state with FIS configuration
+    """
     st.session_state.fis_vars = [
         {"name": "Temperature", "role": "Input", "range": [0, 40], "sets": [
             {"name": "cold", "type": "Triangular", "params": "0, 0, 20"},
@@ -112,6 +168,16 @@ def load_room_heater():
     st.rerun()
 
 def render_presets_section():
+    """
+    Renders the preset examples section for Type-1 Fuzzy Inference Systems.
+
+    Provides users with three pre-configured FIS examples to demonstrate
+    different application domains: service industry (tipping), industrial control
+    (washing machine), and climate control (room heating).
+
+    Returns:
+        None: Updates session state with selected example configuration
+    """
     st.subheader("Preset Examples")
     col1, col2, col3 = st.columns(3)
     if col1.button("Load Tipper Example"):
@@ -122,6 +188,22 @@ def render_presets_section():
         load_room_heater()
 
 def render_variable_section():
+    """
+    Renders the variable definition section for Type-1 Fuzzy Inference Systems.
+
+    Allows users to define input and output variables with their respective ranges.
+    Variables serve as the foundation for the fuzzy system, defining the domain
+    of discourse for each linguistic variable in the FIS.
+
+    Features:
+        - Variable name specification
+        - Role assignment (Input/Output)
+        - Range definition with validation
+        - Variable management (add/remove)
+
+    Returns:
+        None: Updates session state with variable definitions
+    """
     st.header("1. Define Variables")
     if "fis_vars" not in st.session_state:
         st.session_state.fis_vars = []
@@ -159,6 +241,20 @@ def render_variable_section():
         st.info("No variables defined yet.")
 
 def render_fuzzy_sets_section():
+    """
+    Renders the fuzzy set definition section for Type-1 Fuzzy Inference Systems.
+
+    Provides tools for creating and managing fuzzy sets for each variable. Supports
+    triangular, trapezoidal, and Gaussian membership functions with parameter validation.
+
+    Features:
+        - Interactive fuzzy set editor
+        - Parameter validation and user feedback
+        - Set management (add/remove)
+
+    Returns:
+        None: Updates session state with fuzzy set definitions
+    """
     st.header("2. Define Fuzzy Sets for Variables")
     for vidx, var in enumerate(st.session_state.fis_vars):
         st.subheader(f"{var['role']}: {var['name']}")
@@ -192,30 +288,44 @@ def render_fuzzy_sets_section():
             st.info(f"No sets defined for {var['name']}.")
 
 def render_visualization_section():
+    """
+    Renders the visualisation section for Type-1 membership functions.
+
+    Displays visualisations of all defined fuzzy sets for each variable, including
+    their membership functions. Provides clear visual feedback for system design.
+
+    Features:
+        - Membership function visualisation
+        - Multi-set comparison within variables
+        - Professional plotting with legends
+
+    Returns:
+        None: Displays visualisations in Streamlit interface
+    """
     st.header("3. Visualise Membership Functions")
     for var in st.session_state.fis_vars:
         if not var['sets']:
             continue
         with st.expander(f"{var['role']}: {var['name']} (show/hide plot)", expanded=False):
             rng = np.linspace(var['range'][0], var['range'][1], 500)
-            fig, ax = plt.subplots(figsize=(3, 1.2), dpi=60)
-            for fset in var['sets']:
+            fig, ax = plt.subplots(figsize=(3, 2.2), dpi=60)
+            for idx, fset in enumerate(var['sets']):
                 params = [float(p.strip()) for p in fset['params'].split(",")]
                 y = np.zeros_like(rng)
                 if fset['type'] == "Triangular" and len(params) == 3:
                     a, b, c = params
-                    left = safe_div(rng - a, b - a)
-                    right = safe_div(c - rng, c - b)
+                    left = np.maximum((rng - a) / (b - a) if b > a else 1, 0)
+                    right = np.maximum((c - rng) / (c - b) if c > b else 1, 0)
                     y = np.maximum(np.minimum(left, right), 0)
                 elif fset['type'] == "Trapezoidal" and len(params) == 4:
                     a, b, c, d = params
-                    left = safe_div(rng - a, b - a)
-                    right = safe_div(d - rng, d - c)
+                    left = np.maximum((rng - a) / (b - a) if b > a else 1, 0)
+                    right = np.maximum((d - rng) / (d - c) if d > c else 1, 0)
                     y = np.maximum(np.minimum(np.minimum(left, 1), right), 0)
                 elif fset['type'] == "Gaussian" and len(params) == 2:
                     mean, sigma = params
                     y = np.exp(-0.5*((rng-mean)/sigma)**2)
-                ax.plot(rng, y, label=fset['name'])
+                ax.plot(rng, y, linewidth=2, label=fset['name'])
             ax.set_xlabel(var['name'])
             ax.set_ylabel("Membership")
             ax.set_title(f"Membership Functions for {var['name']}")
@@ -225,6 +335,20 @@ def render_visualization_section():
             plt.close(fig)
 
 def render_rules_section():
+    """
+    Renders the rule definition and management section for Type-1 Fuzzy Inference Systems.
+
+    Allows users to view, add, edit, and remove fuzzy rules. Rules are displayed in a
+    tabular format for clarity. The editor supports both creation and modification of rules.
+
+    Features:
+        - Rule table with all current rules
+        - Rule editor for adding and editing
+        - Rule removal functionality
+
+    Returns:
+        None: Updates session state with rule definitions
+    """
     st.header("4. Define Fuzzy Rules")
     with st.expander("Show/Hide Rule Table and Editor", expanded=False):
         if "fis_rules" not in st.session_state:
@@ -306,9 +430,23 @@ def render_rules_section():
                 st.warning("Define at least one output variable and set before adding rules.")
 
 def render_inference_section():
+    """
+    Renders the inference and result section for Type-1 Fuzzy Inference Systems.
+
+    Allows users to input crisp values for all input variables and computes the
+    fuzzy inference result using the defined rules and sets. Displays the output
+    value(s) and provides visual feedback for the output membership functions.
+
+    Features:
+        - Input fields for all input variables
+        - Inference execution and result display
+        - Output membership function visualisation
+
+    Returns:
+        None: Displays inference results in Streamlit interface
+    """
     st.header("5. Fuzzy Inference & Result")
     inputs = {}
-    debug_mode = st.checkbox("Debug Mode", value=False, help="Show detailed calculation steps")
     for var in st.session_state.fis_vars:
         if var['role'] == "Input":
             val = st.number_input(
@@ -320,20 +458,16 @@ def render_inference_section():
                 key=f"input_{var['name']}"
             )
             inputs[var['name']] = val
-            if debug_mode and var['sets']:
-                memberships = fuzzify(val, var['sets'])
-                st.write(f"Membership values for {var['name']} = {val}:")
-                for set_name, mu in memberships.items():
-                    st.write(f"  - {set_name}: {mu:.4f}")
     if st.button("Run Inference", key="run_inference") and st.session_state.fis_rules:
         try:
-            output_results, rule_trace = run_fuzzy_inference(st.session_state.fis_vars, st.session_state.fis_rules, inputs, debug_mode)
+            output_results, rule_trace = run_fuzzy_inference(st.session_state.fis_vars, st.session_state.fis_rules, inputs)
             for out_var in [v for v in st.session_state.fis_vars if v['role']=="Output"]:
                 if out_var['name'] in output_results:
-                    st.success(f"Output {out_var['name']} = {output_results[out_var['name']]:.4f}")
+                    y = output_results[out_var['name']]
+                    st.success(f"Output {out_var['name']} = {y:.4f}")
                     # Output MF plot
                     rng = np.linspace(out_var['range'][0], out_var['range'][1], 500)
-                    agg_y = np.zeros(500)
+                    agg = np.zeros(500)
                     for rule in st.session_state.fis_rules:
                         if rule['then'][0] != out_var['name']:
                             continue
@@ -341,46 +475,29 @@ def render_inference_section():
                         for vname, sname in rule['if']:
                             var = next(v for v in st.session_state.fis_vars if v['name']==vname)
                             memberships = fuzzify(inputs[vname], var['sets'])
-                            strength = min(strength, memberships.get(sname, 0.0))
+                            mu = memberships.get(sname, 0.0)
+                            strength = min(strength, mu)
                         setname = rule['then'][1]
                         fset = next(s for s in out_var['sets'] if s['name']==setname)
                         params = [float(p.strip()) for p in fset['params'].split(",")]
+                        yset = np.zeros_like(rng)
                         if fset['type'] == "Triangular" and len(params) == 3:
                             a, b, c = params
-                            y = np.zeros_like(rng)
-                            mask = (rng >= a) & (rng <= c)
-                            mask_left = (rng >= a) & (rng < b) & mask
-                            if b > a and np.any(mask_left):
-                                y[mask_left] = (rng[mask_left] - a) / (b - a)
-                            mask_right = (rng > b) & (rng <= c) & mask
-                            if c > b and np.any(mask_right):
-                                y[mask_right] = (c - rng[mask_right]) / (c - b)
-                            y[rng == b] = 1.0
+                            left = np.maximum((rng - a) / (b - a) if b > a else 1, 0)
+                            right = np.maximum((c - rng) / (c - b) if c > b else 1, 0)
+                            yset = np.maximum(np.minimum(left, right), 0)
                         elif fset['type'] == "Trapezoidal" and len(params) == 4:
                             a, b, c, d = params
-                            y = np.zeros_like(rng)
-                            mask_left = (rng >= a) & (rng < b)
-                            if b > a and np.any(mask_left):
-                                y[mask_left] = (rng[mask_left] - a) / (b - a)
-                            mask_flat = (rng >= b) & (rng <= c)
-                            y[mask_flat] = 1.0
-                            mask_right = (rng > c) & (rng <= d)
-                            if d > c and np.any(mask_right):
-                                y[mask_right] = (d - rng[mask_right]) / (d - c)
+                            left = np.maximum((rng - a) / (b - a) if b > a else 1, 0)
+                            right = np.maximum((d - rng) / (d - c) if d > c else 1, 0)
+                            yset = np.maximum(np.minimum(np.minimum(left, 1), right), 0)
                         elif fset['type'] == "Gaussian" and len(params) == 2:
                             mean, sigma = params
-                            if sigma == 0:
-                                y = np.zeros_like(rng)
-                                y[rng == mean] = 1.0
-                            else:
-                                y = np.exp(-0.5*((rng-mean)/sigma)**2)
-                        else:
-                            y = np.zeros_like(rng)
-                        agg_y = np.maximum(agg_y, np.minimum(strength, y))
+                            yset = np.exp(-0.5*((rng-mean)/sigma)**2)
+                        agg = np.maximum(agg, np.minimum(strength, yset))
                     fig, ax = plt.subplots(figsize=(3, 1.2), dpi=60)
-                    ax.fill_between(rng, agg_y, alpha=0.3, color='blue')
-                    ax.plot(rng, agg_y, label="Aggregated Output MF", color='blue', linewidth=2)
-                    ax.axvline(output_results[out_var['name']], color="red", linestyle="--", linewidth=2, label=f"Defuzzified: {output_results[out_var['name']]:.3f}")
+                    ax.plot(rng, agg, color='blue', linewidth=2, label="Aggregated Output MF")
+                    ax.axvline(y, color="green", linestyle="--", linewidth=2, label=f"Defuzzified Output: {y:.3f}")
                     ax.set_xlabel(out_var['name'], fontsize=12)
                     ax.set_ylabel("Membership", fontsize=12)
                     ax.set_title(f"Output for {out_var['name']}", fontsize=14)
@@ -400,6 +517,19 @@ def render_inference_section():
         st.info("Define at least one rule to run inference.")
 
 def render_export_section():
+    """
+    Renders the export section for Type-1 Fuzzy Inference Systems.
+
+    Allows users to export the current FIS configuration as Python code or JSON.
+    Facilitates sharing, reproducibility, and further development outside the UI.
+
+    Features:
+        - Python code export
+        - JSON configuration export
+
+    Returns:
+        None: Provides download buttons in Streamlit interface
+    """
     if st.button("Export to Python Code", key="export_py_code"):
         code = generate_python_code(st.session_state.get("fis_vars", []), st.session_state.get("fis_rules", []))
         st.download_button(
@@ -422,6 +552,16 @@ def render_export_section():
         )
 
 def render_upload_config_section():
+    """
+    Renders the upload section for FIS configuration JSON files.
+
+    Allows users to upload a previously saved FIS configuration in JSON format.
+    The configuration is validated and loaded into the session state for further editing
+    or inference.
+
+    Returns:
+        None: Updates session state with uploaded configuration
+    """
     uploaded_file = st.file_uploader("Upload FIS Configuration JSON", type=["json"], key="upload_fis_config")
     if uploaded_file is not None and "fis_config_loaded" not in st.session_state:
         try:
